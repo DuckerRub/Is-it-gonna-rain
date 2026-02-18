@@ -1,21 +1,64 @@
+// const url = 'https://api.giphy.com/v1/gifs/translate?api_key=xCZ25Ja3qe7fqxht4zYzUv6RxqvCG278&s='
 const apiKey = '3G8BBA254R7VWQGNAYBY8ZMQU';
+const weatherUrl = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/";
+const queryParams = `?unitGroup=metric&key=${apiKey}&contentType=json`
 
-console.log(apiKey);
-
-const url = 'https://api.giphy.com/v1/gifs/translate?api_key=xCZ25Ja3qe7fqxht4zYzUv6RxqvCG278&s='
-
-async function getGif() {
+const getWeather = async function (location, date) {
     try {
-        const response = await fetch(url + input.value);
-        const image = await response.json()
-        img.src = image.data.images.original.url;
+        const query = weatherUrl + location + "/" + date + queryParams;
+        const response = await fetch(query);
+        const responseJson = await response.json();
+        console.log("the query is " + query)
+        console.log(responseJson)
+        return responseJson;
     } catch (error) {
-        img.src = 'https://media4.giphy.com/media/v1.Y2lkPTI5YzlhZmZmNW11bGp1NDYxdGZsOGk1d2YydmV1MjdmY2w5Z2QzNWVpYjB4eHdkdiZlcD12MV9naWZzX3RyYW5zbGF0ZSZjdD1z/ZCksvzEfEMFPy9NhqW/giphy.gif' 
+         console.log(error)
     }
 }
 
-button.addEventListener("click", () => {
-    getGif()
-})
+const DOMController = (function () {
+    const locationInput = document.getElementById("location-input");
+    const dateInput = document.getElementById("date");
+    dateInput.valueAsDate = new Date();
+    const button = document.querySelector("button")
+    const responseDom = document.getElementById("response-main")
 
-// FIRST STEP: DESIGN YOUR APP ON FIGJAM
+
+    const getSearchValues = function () {
+        const location = locationInput.value;
+        const date = dateInput.value;
+        return {location, date}
+    }
+
+    const updateUI = function (data) {
+        if (!responseDom) return;
+        responseDom.textContent = data.latitude;
+
+    }
+
+    return {button, updateUI, getSearchValues};
+
+
+
+})();
+
+const eventHandler = (function () {
+    const checkWeather = function () {
+        const searchValues = DOMController.getSearchValues();
+        getWeather(searchValues.location, searchValues.date)
+            .then(response => DOMController.updateUI(response))
+    }
+
+    return {checkWeather}
+})();
+
+(function () { 
+    document.addEventListener('DOMContentLoaded', () => {
+        const button = document.querySelector("button");
+        if (button) { 
+            button.addEventListener("click", eventHandler.checkWeather);
+        } else {
+            console.error("Button not found! Cannot attach click listener.");
+        }
+    });
+})();

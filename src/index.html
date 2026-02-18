@@ -4,8 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    
+    <div id="container">
+        <div id="selector">
+            <div>Is it gonna rain in</div>
+            <input type="text" placeholder="Add a location" id="location-input" value="Madrid">
+            <div>on</div>
+            <input type="date" id="date">
+            <div>?</div>
+            <button>Check</button>
+        </div>
+        <div id="response">
+            <div id="response-main">Click CHECK to check the weather</div>
+            <!-- <div class="response-item" id="response-description">
+                <div class="temperature-icon">O</div>
+                <div class="temperature-text">Partly cloudy throughout the day with late afternoon rain.</div>   </div>
+            <div class="response-item" id="response-temperature">
+                <div class="temperature-icon">O</div>
+                <div class="temperature-text">Temperature: 5 - 15 degrees celsius</div>
+            </div> -->
+        </div>
+    </div>
+    <script src="index.js"></script>
 </body>
 </html>
