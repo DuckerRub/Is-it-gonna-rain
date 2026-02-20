@@ -110,6 +110,3 @@ const eventHandler = (function () {
         }
     });
 })();
-
-// Todo - add a loading indicator
-// Todo - get correct data and assign to DOM
