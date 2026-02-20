@@ -21,7 +21,10 @@ const DOMController = (function () {
     const dateInput = document.getElementById("date");
     dateInput.valueAsDate = new Date();
     const button = document.querySelector("button")
-    const responseDom = document.getElementById("response-main")
+    const responseDom = document.getElementById("response-main") // This is not used in the new implementation.
+    const responseDescriptionText = document.getElementById("response-description-text");
+    const responseTemperatureText = document.getElementById("response-temperature-text");
+    const responseLoading = document.getElementById("response-loading");
 
 
     const getSearchValues = function () {
@@ -30,13 +33,52 @@ const DOMController = (function () {
         return {location, date}
     }
 
-    const updateUI = function (data) {
-        if (!responseDom) return;
-        responseDom.textContent = data.latitude;
-
+    const clearResults = function () {
+        if (responseDescriptionText) responseDescriptionText.textContent = "";
+        if (responseTemperatureText) responseTemperatureText.textContent = "";
     }
 
-    return {button, updateUI, getSearchValues};
+    const showLoading = function () {
+        if (responseLoading) responseLoading.style.display = "block";
+    }
+
+    const hideLoading = function () {
+        if (responseLoading) responseLoading.style.display = "none";
+    }
+
+    const updateUI = function (data) {
+        if (!data || !data.days || data.days.length === 0) {
+            if (responseDescriptionText) responseDescriptionText.textContent = "No weather data available.";
+            if (responseTemperatureText) responseTemperatureText.textContent = "";
+            return;
+        }
+
+        const conditions = data.days[0].description;
+        const tempMin = data.days[0].tempmin;
+        const tempMax = data.days[0].tempmax;
+        const precipProb = data.days[0].precipprob; // Probability of precipitation
+        const precip = data.days[0].precip; // Total precipitation amount
+
+        let rainAnswer = "";
+        if (precip > 0 || precipProb > 70) {
+            rainAnswer = "Yes. ";
+        } else if (precipProb > 20) {
+            rainAnswer = "Probably Yes. ";
+        } else if (precipProb === 0) {
+            rainAnswer = "No. ";
+        } else {
+            rainAnswer = "Probably No. ";
+        }
+
+        if (responseDescriptionText) {
+            responseDescriptionText.textContent = rainAnswer + conditions;
+        }
+        if (responseTemperatureText) {
+            responseTemperatureText.textContent = `Temperature: ${tempMin}°C - ${tempMax}°C`;
+        }
+    }
+
+    return {button, updateUI, getSearchValues, clearResults, showLoading, hideLoading};
 
 
 
@@ -45,8 +87,14 @@ const DOMController = (function () {
 const eventHandler = (function () {
     const checkWeather = function () {
         const searchValues = DOMController.getSearchValues();
+        DOMController.clearResults();
+        DOMController.showLoading();
+
         getWeather(searchValues.location, searchValues.date)
             .then(response => DOMController.updateUI(response))
+            .finally(() => {
+                DOMController.hideLoading();
+            });
     }
 
     return {checkWeather}
@@ -62,3 +110,6 @@ const eventHandler = (function () {
         }
     });
 })();
+
+// Todo - add a loading indicator
+// Todo - get correct data and assign to DOM
